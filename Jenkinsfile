@@ -18,7 +18,7 @@ pipeline{
     
         stage("Checkout from SCM"){
             steps {
-                git branch: 'master', changelog: false, poll: false, url: 'https://github.com/ahmedtobar11/CI-CD-Pipeline-Using-Jenkins.git'
+                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/ahmedtobar11/CI-CD-Pipeline-Using-Jenkins.git'
             }
         }
 
