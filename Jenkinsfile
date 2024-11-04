@@ -9,6 +9,10 @@ pipeline{
         SCANNER_HOME= tool "sonar-scanner"
         DOCKER_IMAGE = 'ahmedtobar/webapp'
         DOCKER_TAG = "${BUILD_NUMBER}"
+        AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
+        AWS_SESSION_TOKEN = credentials('aws_session_token')
+        AWS_DEFAULT_REGION = 'us-east-1'
     }
 
     stages{
@@ -65,6 +69,16 @@ pipeline{
                     sh 'echo $PASS | docker login -u $USER --password-stdin'
                     sh 'docker push ${DOCKER_IMAGE}:${DOCKER_TAG}'
                     sh 'docker push ${DOCKER_IMAGE}:latest'
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    //sh "sed -i 's|image:.*|image: ${DOCKER_IMAGE}:${DOCKER_TAG}|' k8s/deployment.yaml"
+                    sh 'kubectl apply -f k8s/deployment.yaml'
+                    sh 'kubectl apply -f k8s/service.yaml'
                 }
             }
         }
