@@ -44,7 +44,7 @@ pipeline{
 
         stage("Trivy Scan"){
             steps {
-                sh "trivy fs --security-checks vuln,config /var/jenkins_home/workspace/project-1"
+                sh "trivy fs --security-checks vuln,config /var/jenkins_home/workspace/CICD"
             }
         }
 
