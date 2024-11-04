@@ -7,6 +7,8 @@ pipeline{
 
     environment{
         SCANNER_HOME= tool "sonar-scanner"
+        DOCKER_IMAGE = 'ahmedtobar/webapp'
+        DOCKER_TAG = "${BUILD_NUMBER}"
     }
 
     stages{
@@ -50,10 +52,19 @@ pipeline{
 
         stage("Build Docker Image"){
             steps {
+                script {
+                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                    sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest"
+                }
+            }
+        }
+
+        stage("Push to DockerHub"){
+            steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-login', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                    sh 'docker build -t ahmedtobar/cicd:$BUILD_ID .'
                     sh 'echo $PASS | docker login -u $USER --password-stdin'
-                    sh 'docker push ahmedtobar/cicd:$BUILD_ID'
+                    sh 'docker push ${DOCKER_IMAGE}:${DOCKER_TAG}'
+                    sh 'docker push ${DOCKER_IMAGE}:latest'
                 }
             }
         }
