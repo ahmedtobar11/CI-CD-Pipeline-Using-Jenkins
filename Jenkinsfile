@@ -77,6 +77,7 @@ pipeline{
             steps {
                 script {
                     //sh "sed -i 's|image:.*|image: ${DOCKER_IMAGE}:${DOCKER_TAG}|' k8s/deployment.yaml"
+                    sh 'aws eks --region us-east-1 update-kubeconfig --name EKS-deploy-app'
                     sh 'kubectl apply -f k8s/deployment.yaml'
                     sh 'kubectl apply -f k8s/service.yaml'
                 }

@@ -7,7 +7,6 @@ spec:
     app: webapp
   ports:
     - protocol: TCP
-      port: 80          
-      targetPort: 8080  
-      nodePort: 32000  
-  type: NodePort  # Type of service
+      port: 80          # The port exposed by the LoadBalancer
+      targetPort: 8080  # The port on the container where the application is listening
+  type: LoadBalancer    # Change the service type to LoadBalancer
