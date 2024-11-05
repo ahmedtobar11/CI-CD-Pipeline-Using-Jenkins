@@ -42,11 +42,11 @@ pipeline{
             }
         }
 
-        // stage("Trivy Scan"){
-        //     steps {
-        //         sh "trivy fs --security-checks vuln,config /var/jenkins_home/workspace/automated-pipeline"
-        //     }
-        // }
+        stage("Trivy Scan"){
+            steps {
+                sh "trivy fs --security-checks vuln,config /var/jenkins_home/workspace/automated-pipeline"
+            }
+        }
 
         stage("Build Application"){
             steps {
@@ -63,11 +63,11 @@ pipeline{
             }
         }
 
-        stage("Trivy Scan"){
-            steps {
-                sh 'trivy image --exit-code 1 --severity HIGH ${DOCKER_IMAGE}:${DOCKER_TAG}'
-            }
-        }
+        // stage("Trivy Scan"){
+        //     steps {
+        //         sh 'trivy image --exit-code 1 --severity HIGH ${DOCKER_IMAGE}:${DOCKER_TAG}'
+        //     }
+        // }
 
         // stage("Push to DockerHub"){
         //     steps {
