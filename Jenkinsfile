@@ -42,11 +42,11 @@ pipeline{
             }
         }
 
-        stage("Trivy Scan"){
-            steps {
-                sh "trivy fs --security-checks vuln,config /var/jenkins_home/workspace/CICD"
-            }
-        }
+        // stage("Trivy Scan"){
+        //     steps {
+        //         sh "trivy fs --security-checks vuln,config /var/jenkins_home/workspace/CICD"
+        //     }
+        // }
 
         stage("Build Application"){
             steps {
@@ -63,6 +63,12 @@ pipeline{
             }
         }
 
+        stage("Trivy Scan"){
+            steps {
+                sh 'trivy image --exit-code 1 --severity HIGH ${DOCKER_IMAGE}:${DOCKER_TAG}'
+            }
+        }
+
         stage("Push to DockerHub"){
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-login', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
@@ -73,13 +79,12 @@ pipeline{
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy to EKS') {
             steps {
                 script {
-                    //sh "sed -i 's|image:.*|image: ${DOCKER_IMAGE}:${DOCKER_TAG}|' k8s/deployment.yaml"
                     sh 'aws eks --region us-east-1 update-kubeconfig --name EKS-deploy-app'
-                    sh 'kubectl apply -f k8s/deployment.yaml'
-                    sh 'kubectl apply -f k8s/service.yaml'
+                    sh 'kubectl apply -f EKS/deployment.yaml'
+                    sh 'kubectl apply -f EKS/service.yaml'
                 }
             }
         }
