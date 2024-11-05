@@ -100,12 +100,40 @@ Provide the following details:
 
 ## 🧪 Set Up SonarQube
 
-Run SonarQube locally using Docker:
-```
-docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
-```
-Configure the SonarQube server in Jenkins under **Manage Jenkins > Configure System**.
-![1](https://github.com/user-attachments/assets/c4172694-0ca2-4ed1-bdcf-e7ad895a4747)
+### Accessing SonarQube
+
+1.  Open your browser and navigate to **http://localhost:9000**.
+2.  Log in to SonarQube with the default credentials (**Username**: `admin`, **Password**: `admin`). You will be prompted to change the password after the first login.
+   ![9](https://github.com/user-attachments/assets/1b237001-1823-43e4-9282-9f8909a4f38b)
+
+### Creating a Token
+
+1.  Go to **Administration > Security > Users**.
+2.  Select your user profile and navigate to **Tokens**.
+3.  Click on **Generate Token**, provide a name for the token, and save it securely.
+   
+   ![8](https://github.com/user-attachments/assets/7fcd292f-1864-4a1c-903e-c6e7366a216d)
+
+### Adding the Token to Jenkins
+
+1.  In Jenkins, go to **Manage Jenkins > Credentials > System**.
+2.  Add the token as a **Secret Text** credential with a recognizable ID (e.g., `sonar-token`).
+   
+   ![7](https://github.com/user-attachments/assets/4115d4bd-7974-4a7b-bea2-af043858b3c2)
+
+### Configuring SonarQube in Jenkins
+
+1.  Go to **Manage Jenkins > Configure System**.
+
+2.  Scroll down to **SonarQube Servers** and add a new server configuration:
+    
+    -   **Name**: Provide a descriptive name (e.g., `Local SonarQube`).
+    -   **Server URL**: `http://localhost:9000`
+    -   **Server Authentication Token**: Select the token credential you created earlier.
+3.  Save the configuration.
+
+   ![1](https://github.com/user-attachments/assets/c4172694-0ca2-4ed1-bdcf-e7ad895a4747)
+
 
 ## ☁️Create Amazon EKS Cluster
 
@@ -129,10 +157,39 @@ Ensure all stages complete successfully:
 -   **Build and Docker Image Creation**: The application is built, and a Docker image is created.
 -   **Push to Docker Hub**: The Docker image is pushed successfully.
 -   **Deploy to EKS**: The application is deployed and accessible through the load balancer.
+  
   ![3](https://github.com/user-attachments/assets/022eff1b-895a-4cd9-acde-0145706b6eed)
 
-
+  ![Screenshot 2024-11-05 233800](https://github.com/user-attachments/assets/d3d3326c-cdcf-447d-aa26-4420f5e1ce95)
 
 ## 🌐Accessing the Deployed Application
 
-Navigate to the **AWS Management Console > EC2 > Load Balancers** to find the DNS name of the load balancer. Use this URL to access your deployed application.
+### Option 1: AWS Management Console
+
+1.  Navigate to **AWS Management Console > EC2 > Load Balancers**.
+2.  Locate the load balancer associated with your EKS deployment.
+3.  Copy the **DNS name** of the load balancer.
+4.  Paste the DNS name into your browser to access your application.
+
+### Option 2: Command Line (Using `kubectl` in Jenkins Container)
+
+1.  Access your Jenkins container:
+    ```
+    docker exec -it jenkins bash
+    ```
+2.  Run the following command to get the service details:
+    ```    
+    `kubectl get svc
+    ```
+
+3.  Look for the **EXTERNAL-IP** under the **LoadBalancer** type service.
+    
+4.  Copy the **EXTERNAL-IP** or URL.
+
+   ![5](https://github.com/user-attachments/assets/9bf14c78-701c-473b-b2fc-a4fca2227bc7)
+    
+6.  Paste the URL into your browser to access your application.
+   
+   ![6](https://github.com/user-attachments/assets/92454859-0116-469d-a35f-1e553c1a1572)
+
+   
