@@ -9,10 +9,10 @@ pipeline{
         SCANNER_HOME= tool "sonar-scanner"
         DOCKER_IMAGE = 'ahmedtobar/webapp'
         DOCKER_TAG = "${BUILD_NUMBER}"
-        // AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
-        // AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
-        // AWS_SESSION_TOKEN = credentials('aws_session_token')
-        // AWS_DEFAULT_REGION = 'us-east-1'
+        AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
+        AWS_SESSION_TOKEN = credentials('aws_session_token')
+        AWS_DEFAULT_REGION = 'us-east-1'
     }
 
     stages{
@@ -63,30 +63,24 @@ pipeline{
             }
         }
 
-        // stage("Trivy Scan"){
-        //     steps {
-        //         sh 'trivy image --exit-code 1 --severity HIGH ${DOCKER_IMAGE}:${DOCKER_TAG}'
-        //     }
-        // }
+        stage("Push to DockerHub"){
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-login', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                    sh 'echo $PASS | docker login -u $USER --password-stdin'
+                    sh 'docker push ${DOCKER_IMAGE}:${DOCKER_TAG}'
+                    sh 'docker push ${DOCKER_IMAGE}:latest'
+                }
+            }
+        }
 
-        // stage("Push to DockerHub"){
-        //     steps {
-        //         withCredentials([usernamePassword(credentialsId: 'dockerhub-login', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-        //             sh 'echo $PASS | docker login -u $USER --password-stdin'
-        //             sh 'docker push ${DOCKER_IMAGE}:${DOCKER_TAG}'
-        //             sh 'docker push ${DOCKER_IMAGE}:latest'
-        //         }
-        //     }
-        // }
-
-        // stage('Deploy to EKS') {
-        //     steps {
-        //         script {
-        //             sh 'aws eks --region us-east-1 update-kubeconfig --name EKS-deploy-app'
-        //             sh 'kubectl apply -f EKS/deployment.yaml'
-        //             sh 'kubectl apply -f EKS/service.yaml'
-        //         }
-        //     }
-        // }
+        stage('Deploy to EKS') {
+            steps {
+                script {
+                    sh 'aws eks --region us-east-1 update-kubeconfig --name EKS-deploy-app'
+                    sh 'kubectl apply -f EKS/deployment.yaml'
+                    sh 'kubectl apply -f EKS/service.yaml'
+                }
+            }
+        }
     }
 }
