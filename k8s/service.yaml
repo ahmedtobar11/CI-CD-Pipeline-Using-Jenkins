@@ -9,5 +9,5 @@ spec:
     - protocol: TCP
       port: 80          
       targetPort: 8080  
-      nodePort: 35000   
+      nodePort: 32000  
   type: NodePort  # Type of service
